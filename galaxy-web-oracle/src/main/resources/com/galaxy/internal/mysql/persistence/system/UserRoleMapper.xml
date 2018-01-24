@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.galaxy.base.system.dao.UserRoleDao">
+
+	<select id="get" resultType="com.galaxy.base.system.domain.UserRoleDO">
+		select id,user_id,role_id from
+		 SYS_USER_ROLE where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.galaxy.base.system.domain.UserRoleDO">
+		select * from (
+			select rownum rn,pur.id,pur.user_id,pur.role_id from SYS_USER_ROLE pur
+			<where>
+				<if test="id != null and id != ''"> and pur.id = #{id} </if>
+				<if test="userId != null and userId != ''"> and pur.user_id = #{userId} </if>
+				<if test="roleId != null and roleId != ''"> and pur.role_id = #{roleId} </if>
+			</where>
+			<choose>
+				<when test="sort != null and sort.trim() != ''">
+					order by ${sort} ${order}
+				</when>
+				<otherwise>
+					order by id desc
+				</otherwise>
+			</choose>
+		)
+		<if test="offset != null and limit != null">
+			where m.row between #{offset}+1 and #{limit}*#{page}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from
+		 SYS_USER_ROLE pur
+			<where>
+				<if test="id != null and id != ''"> and pur.id = #{id} </if>
+				<if test="userId != null and userId != ''"> and pur.user_id = #{userId} </if>
+				<if test="roleId != null and roleId != ''"> and pur.role_id = #{roleId} </if>
+			</where>
+
+
+	</select>
+
+	<insert id="save" parameterType="com.galaxy.base.system.domain.UserRoleDO" >
+		<selectKey order="AFTER" resultType="long" keyProperty="id">
+			select seq_SYS_user_role.currval from dual
+		</selectKey>
+		insert into SYS_USER_ROLE
+		(
+		 id
+		user_id,
+		role_id
+		)
+		values
+		(
+		seq_SYS_user_role.nextval,
+		#{userId},
+		#{roleId}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.galaxy.base.system.domain.UserRoleDO">
+		update SYS_USER_ROLE
+		<set>
+			<if test="userId != null">user_id = #{userId}, </if>
+			<if test="roleId != null">role_id = #{roleId}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from SYS_USER_ROLE where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from SYS_USER_ROLE where id in
+		<foreach item="id" collection="array" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="listRoleId" resultType="long">
+		select role_id from
+		SYS_USER_ROLE where
+		user_id=#{userId}
+	</select>
+
+	<delete id="removeByUserId">
+		delete from SYS_USER_ROLE where user_id=#{userId}
+	</delete>
+
+	<delete id="batchRemoveByUserId">
+		delete from SYS_USER_ROLE where user_id in
+		<foreach item="id" collection="array" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<insert id="batchSave">
+		INSERT INTO SYS_USER_ROLE(id,user_id, role_id) 
+		select seq_SYS_user_role.nextval,a.* from
+		(
+		<foreach item="item" index="index" collection="list"
+			separator="UNION ALL">
+			select  #{item.userId} user_id,#{item.roleId} role_id from dual
+		</foreach>
+		)a
+	</insert>
+</mapper>

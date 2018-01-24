@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.galaxy.base.system.dao.RoleDao">
+
+	<sql id = "roleColumnKey">
+		<trim suffix="" suffixOverrides=",">
+			<if test="1 == 1">role_id,</if>
+			<if test="roleName != null and roleName != ''">role_name,</if>
+			<if test="roleSign != null and roleSign != ''">role_sign,</if>
+			<if test="remark != null and remark != ''">remark,</if>
+			<if test="userIdCreate != null and userIdCreate != ''">user_id_create,</if>
+			<if test="gmtCreate != null">gmt_create,</if>
+			<if test="gmtModified != null">gmt_modified</if>
+		</trim>
+	</sql>
+	
+	<sql id="roleColumnValue">
+		<trim suffix="" suffixOverrides=",">
+			<if test="1 == 1">seq_SYS_ROLE.nextval,</if>
+			<if test="roleName != null and roleName != ''">#{roleName},</if>
+			<if test="roleSign != null and roleSign != ''">#{roleSign},</if>
+			<if test="remark != null and remark != ''">#{remark},</if>
+			<if test="userIdCreate != null and userIdCreate != ''">#{userIdCreate},</if>
+			<if test="gmtCreate != null">#{gmtCreate},</if>
+			<if test="gmtModified != null">#{gmtModified}</if>
+		</trim>
+	</sql>
+
+	<select id="get" resultType="com.galaxy.base.system.domain.RoleDO">
+		select
+		role_id,role_name,role_sign,remark,user_id_create,gmt_create,gmt_modified
+		from SYS_ROLE where role_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.galaxy.base.system.domain.RoleDO">
+		select * from (
+		select
+		r.role_id,r.role_name,r.role_sign,r.remark,r.user_id_create,r.gmt_create,r.gmt_modified,rownum as rn
+		from SYS_ROLE r
+		<where>
+			<if test="roleId != null and roleId != ''"> and r.role_id = #{roleId} </if>
+			<if test="roleName != null and roleName != ''"> and r.role_name = #{roleName} </if>
+			<if test="roleSign != null and roleSign != ''"> and r.role_sign = #{roleSign} </if>
+			<if test="remark != null and remark != ''"> and r.remark = #{remark} </if>
+			<if test="userIdCreate != null and userIdCreate != ''"> and r.user_id_create = #{userIdCreate} </if>
+			<if test="gmtCreate != null and gmtCreate != ''"> and r.gmt_create = #{gmtCreate} </if>
+			<if test="gmtModified != null and gmtModified != ''"> and r.gmt_modified = #{gmtModified} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${orderr}
+			</when>
+			<otherwise>
+				order by role_id desc
+			</otherwise>
+		</choose>
+		)
+		<if test="offset != null and limit != null">
+			where rn between #{offset}+1 and #{limit}*#{page}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(1)
+		from SYS_ROLE r
+		<where>
+			<if test="roleId != null and roleId != ''"> and r.role_id = #{roleId} </if>
+			<if test="roleName != null and roleName != ''"> and r.role_name = #{roleName} </if>
+			<if test="roleSign != null and roleSign != ''"> and r.role_sign = #{roleSign} </if>
+			<if test="remark != null and remark != ''"> and r.remark = #{remark} </if>
+			<if test="userIdCreate != null and userIdCreate != ''"> and r.user_id_create = #{userIdCreate} </if>
+			<if test="gmtCreate != null and gmtCreate != ''"> and r.gmt_create = #{gmtCreate} </if>
+			<if test="gmtModified != null and gmtModified != ''"> and r.gmt_modified = #{gmtModified} </if>
+		</where>
+
+	</select>
+
+	<insert id="save" parameterType="com.galaxy.base.system.domain.RoleDO">
+		<selectKey order="AFTER" resultType="long" keyProperty="roleId">
+			select seq_SYS_role.currval from dual
+		</selectKey>
+		insert into SYS_ROLE
+		(
+			<include refid="roleColumnKey"/>
+		)
+		values
+		(
+			<include refid="roleColumnValue"/>
+		)
+	</insert>
+
+	<update id="update" parameterType="com.galaxy.base.system.domain.RoleDO">
+		update SYS_ROLE
+		<set>
+			<if test="roleName != null">role_name = #{roleName}, </if>
+			<if test="roleSign != null">role_sign = #{roleSign}, </if>
+			<if test="remark != null">remark = #{remark}, </if>
+			<if test="userIdCreate != null">user_id_create = #{userIdCreate}, </if>
+			<if test="gmtCreate != null">gmt_create = #{gmtCreate}, </if>
+			<if test="gmtModified != null">gmt_modified = #{gmtModified}</if>
+		</set>
+		where role_id = #{roleId}
+	</update>
+
+	<delete id="remove">
+		delete from SYS_ROLE where role_id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from SYS_ROLE where role_id in
+		<foreach item="roleId" collection="array" open="(" separator=","
+			close=")">
+			#{roleId}
+		</foreach>
+	</delete>
+
+</mapper>

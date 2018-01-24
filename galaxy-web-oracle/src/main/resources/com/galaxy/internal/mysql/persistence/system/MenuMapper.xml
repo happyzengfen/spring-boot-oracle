@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.galaxy.base.system.dao.MenuDao">
+
+    <select id="get" resultType="com.galaxy.base.system.domain.MenuDO">
+		select
+		menu_id,parent_id,name,url,perms,type,icon,order_num,gmt_create,gmt_modified
+		from SYS_MENU where menu_id = #{value}
+	</select>
+	
+	<sql id = "selectColumn">
+		<if test="menuId != null and menuId != ''"> and m.menu_id = #{menuId} </if>
+		<if test="parentId != null and parentId != ''"> and m.parent_id = #{parentId} </if>
+		<if test="name != null and name != ''"> and m.name = #{name} </if>
+		<if test="url != null and url != ''"> and m.url = #{url} </if>
+		<if test="perms != null and perms != ''"> and m.perms = #{perms} </if>
+		<if test="type != null and type != ''"> and m.type = #{type} </if>
+		<if test="icon != null and icon != ''"> and m.icon = #{icon} </if>
+		<if test="orderNum != null and orderNum != ''"> and m.order_num = #{orderNum} </if>
+		<if test="gmtCreate != null"> and m.gmt_create = #{gmtCreate} </if>
+		<if test="gmtModified != null"> and m.gmt_modified = #{gmtModified} </if>
+	</sql>
+	
+	<sql id = "menuColumnKey">
+		<trim suffix="" suffixOverrides=",">
+			<if test="1==1">menu_id,</if>
+			<if test="parentId != null and parentId != ''">parent_id,</if>
+			<if test="name != null and name != ''">name,</if>
+			<if test="url != null and url != ''">url,</if>
+			<if test="perms != null and perms != ''"> perms,</if>
+			<if test="type != null and type != ''">type,</if>
+			<if test="icon != null and icon != ''">icon,</if>
+			<if test="orderNum != null and orderNum != ''">order_num,</if>
+			<if test="gmtCreate != null">gmt_create,</if>
+			<if test="gmtModified != null">gmt_modified,</if>
+		</trim>
+	</sql>
+	
+	<sql id = "menuColumnValue">
+		<trim suffix="" suffixOverrides=",">
+			<if test="1==1">seq_SYS_menu.nextval,</if>
+			<if test="parentId != null and parentId != ''">#{parentId},</if>
+			<if test="name != null and name != ''">#{name},</if>
+			<if test="url != null and url != ''">#{url},</if>
+			<if test="perms != null and perms != ''"> #{perms},</if>
+			<if test="type != null and type != ''">#{type},</if>
+			<if test="icon != null and icon != ''">#{icon},</if>
+			<if test="orderNum != null and orderNum != ''">#{orderNum},</if>
+			<if test="gmtCreate != null">#{gmtCreate},</if>
+			<if test="gmtModified != null">#{gmtModified},</if>
+		</trim>
+	</sql>
+
+	<select id="list" resultType="com.galaxy.base.system.domain.MenuDO">
+		select * from (
+			select
+			m.menu_id,m.parent_id,m.name,m.url,m.perms,m.type,m.icon,m.order_num,m.gmt_create,m.gmt_modified,rownum as rn
+			from SYS_MENU m
+			<where>
+				<include refid="selectColumn"/>
+			</where>
+			<choose>
+				<when test="sort != null and sort.trim() != ''">
+					order by ${sort} ${order}
+				</when>
+				<otherwise>
+					order by menu_id desc
+				</otherwise>
+			</choose>
+		)
+		<if test="offset != null and limit != null">
+			where rn between #{offset}+1 and #{limit}*#{page}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+
+			select
+			 count(1)
+			from SYS_MENU m
+			<where>
+				<include refid="selectColumn"/>
+			</where>
+
+
+	</select>
+
+	<insert id="save" parameterType="com.galaxy.base.system.domain.MenuDO">
+		<selectKey order="AFTER" resultType="long" keyProperty="menuId">
+			select seq_SYS_menu.currval from dual
+		</selectKey>
+		insert into SYS_MENU
+		(
+			<include refid="menuColumnKey"></include>
+		)
+		values
+		(
+			<include refid="menuColumnValue"></include>
+		)
+	</insert>
+
+	<update id="update" parameterType="com.galaxy.base.system.domain.MenuDO">
+		update SYS_MENU
+		<set>
+			<if test="parentId != null">parent_id = #{parentId}, </if>
+			<if test="name != null">name = #{name}, </if>
+			<if test="url != null">url = #{url}, </if>
+			<if test="perms != null">perms = #{perms}, </if>
+			<if test="type != null">type = #{type}, </if>
+			<if test="icon != null">icon = #{icon}, </if>
+			<if test="orderNum != null">order_num = #{orderNum}, </if>
+			<if test="gmtCreate != null">gmt_create = #{gmtCreate}, </if>
+			<if test="gmtModified != null">gmt_modified = #{gmtModified}</if>
+		</set>
+		where menu_id = #{menuId}
+	</update>
+
+	<delete id="remove">
+		delete from SYS_MENU where menu_id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from SYS_MENU where menu_id in
+		<foreach item="menuId" collection="array" open="(" separator=","
+			close=")">
+			#{menuId}
+		</foreach>
+	</delete>
+
+	<select id="listMenuByUserId" resultType="com.galaxy.base.system.domain.MenuDO">
+		select distinct
+		m.menu_id , parent_id, name, url,
+		perms,type,icon,order_num,gmt_create, gmt_modified
+		from SYS_MENU m
+		left
+		join SYS_ROLE_MENU rm on m.menu_id = rm.menu_id left join
+		SYS_USER_ROLE ur
+		on rm.role_id =ur.role_id where ur.user_id = #{id}
+		and
+		m.type in(0,1)
+		order by
+		m.order_num
+	</select>
+
+	<select id="listUserPerms" resultType="string">
+		select distinct m.perms
+		from SYS_MENU m left join
+		SYS_ROLE_MENU rm on m.menu_id = rm.menu_id
+		left join SYS_USER_ROLE ur
+		on rm.role_id = ur.role_id where ur.user_id
+		= #{id}
+	</select> 
+</mapper>

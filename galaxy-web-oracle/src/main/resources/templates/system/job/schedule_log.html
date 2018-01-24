@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+</head>
+<body>
+<div id="rrapp">
+	<div class="grid-btn">
+		<div class="form-group col-sm-2">
+			<input type="text" class="form-control" v-model="q.jobId" @keyup.enter="query" placeholder="任务ID">
+		</div>
+		<a class="btn btn-default" @click="query">查询</a>
+		&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="back" value="返回"/>
+	</div>
+    <table id="jqGrid"></table>
+    <div id="jqGridPager"></div>
+</div>
+
+<div th:include="include::footer"></div>
+<script src="/js/appjs/sys/job/safe.js"></script>
+</body>
+</html>

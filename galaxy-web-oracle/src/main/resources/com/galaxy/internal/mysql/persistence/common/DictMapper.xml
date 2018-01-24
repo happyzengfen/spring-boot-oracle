@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.galaxy.base.common.dao.DictDao">
+
+	<sql id = "dictColumnKey">
+		<trim suffix="" suffixOverrides=",">
+			<if test="1 == 1"> id,</if>
+			<if test="name != null and name != ''">name,</if>
+			<if test="value != null and value != ''">value,</if>
+			<if test="type != null and type != ''">type,</if>
+			<if test="description != null and description != ''">description,</if>
+			<if test="sort != null and sort != ''">sort,</if>
+			<if test="parentId != null and parentId != ''">parent_id,</if>
+			<if test="createBy != null and createBy != ''">create_by,</if>
+			<if test="createDate != null">create_date,</if>
+			<if test="updateBy != null and updateBy != ''">update_by,</if>
+			<if test="updateDate != null">update_date,</if>
+			<if test="remarks != null and remarks != ''">remarks,</if>
+			<if test="delFlag != null and delFlag != ''">del_flag,</if>
+		</trim>
+	</sql>
+	
+	<sql id = "dictColumnValue">
+		<trim suffix="" suffixOverrides=",">
+			<if test="1 == 1">seq_sys_dict.nextval,</if>
+			<if test="name != null and name != ''">#{name},</if>
+			<if test="value != null and value != ''">#{value},</if>
+			<if test="type != null and type != ''">#{type},</if>
+			<if test="description != null and description != ''">#{description},</if>
+			<if test="sort != null and sort != ''">#{sort},</if>
+			<if test="parentId != null and parentId != ''">#{parentId},</if>
+			<if test="createBy != null and createBy != ''">#{createBy},</if>
+			<if test="createDate != null">#{createDate},</if>
+			<if test="updateBy != null and updateBy != ''">#{updateBy},</if>
+			<if test="updateDate != null">#{updateDate},</if>
+			<if test="remarks != null and remarks != ''">#{remarks},</if>
+			<if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+		</trim>
+	</sql>
+
+	<select id="get" resultType="com.galaxy.base.common.domain.DictDO">
+		select
+		id,name,value,type,description,sort,parent_id,create_by,create_date,update_by,update_date,remarks,del_flag
+		from SYS_DICT where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.galaxy.base.common.domain.DictDO">
+		select * from(
+		select
+		pd.id,pd.name,pd.value,pd.type,pd.description,pd.sort,pd.parent_id,pd.create_by,pd.create_date,pd.update_by,pd.update_date,pd.remarks,pd.del_flag,rownum
+		rn
+		from (select * from SYS_DICT
+		<choose>
+		<when test="sort != null and sort.trim() != ''">select * from(
+			select
+			pd.id,
+			pd.name,
+			pd.value,pd.
+			type,pd.
+			description,pd.
+			sort,pd.parent_id,pd.create_by,pd.create_date,pd.update_by,pd.update_date,pd.remarks,pd.del_flag,rownum rn
+			from (select * from SYS_DICT
+			order by ${sort} ${order}
+		</when>
+		<otherwise>
+			order by id desc
+		</otherwise>
+	</choose>)  pd
+		<where>
+			<if test="id != null and id != ''"> and pd.id = #{id} </if>
+			<if test="name != null and name != ''"> and pd.name = #{name} </if>
+			<if test="value != null and value != ''"> and pd.value = #{value} </if>
+			<if test="type != null and type != ''"> and pd.type = #{type} </if>
+			<if test="description != null and description != ''"> and pd.description = #{description} </if>
+			<if test="sort != null and sort != ''"> and pd.sort = #{sort} </if>
+			<if test="parentId != null and parentId != ''"> and pd.parent_id = #{parentId} </if>
+			<if test="createBy != null and createBy != ''"> and pd.create_by = #{createBy} </if>
+			<if test="createDate != null and createDate != ''"> and pd.create_date = #{createDate} </if>
+			<if test="updateBy != null and updateBy != ''"> and pd.update_by = #{updateBy} </if>
+			<if test="updateDate != null and updateDate != ''"> and pd.update_date = #{updateDate} </if>
+			<if test="remarks != null and remarks != ''"> and pd.remarks = #{remarks} </if>
+			<if test="delFlag != null and delFlag != ''"> and pd.del_flag = #{delFlag} </if>
+		</where>
+
+		)
+		<if test="offset != null and limit != null">
+			where rn between  #{offset}+1 and #{limit}*#{page}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*)
+		from SYS_DICT pd
+		<where>
+			<if test="id != null and id != ''"> and pd.id = #{id} </if>
+			<if test="name != null and name != ''"> and pd.name = #{name} </if>
+			<if test="value != null and value != ''"> and pd.value = #{value} </if>
+			<if test="type != null and type != ''"> and pd.type = #{type} </if>
+			<if test="description != null and description != ''"> and pd.description = #{description} </if>
+			<if test="sort != null and sort != ''"> and pd.sort = #{sort} </if>
+			<if test="parentId != null and parentId != ''"> and pd.parent_id = #{parentId} </if>
+			<if test="createBy != null and createBy != ''"> and pd.create_by = #{createBy} </if>
+			<if test="createDate != null and createDate != ''"> and pd.create_date = #{createDate} </if>
+			<if test="updateBy != null and updateBy != ''"> and pd.update_by = #{updateBy} </if>
+			<if test="updateDate != null and updateDate != ''"> and pd.update_date = #{updateDate} </if>
+			<if test="remarks != null and remarks != ''"> and pd.remarks = #{remarks} </if>
+			<if test="delFlag != null and delFlag != ''"> and pd.del_flag = #{delFlag} </if>
+		</where>
+
+
+	</select>
+
+	<insert id="save" parameterType="com.galaxy.base.common.domain.DictDO" >
+		<selectKey order="AFTER" resultType="long" keyProperty="id">
+			select seq_sys_dict.currval from dual
+		</selectKey>
+		insert into SYS_DICT
+		(
+			<include refid="dictColumnKey" />
+		)
+		values
+		(
+			<include refid="dictColumnValue" />
+		)
+	</insert>
+
+	<update id="update" parameterType="com.galaxy.base.common.domain.DictDO">
+		update SYS_DICT
+		<set>
+			<if test="name != null">name = #{name}, </if>
+			<if test="value != null">value = #{value}, </if>
+			<if test="type != null">type = #{type}, </if>
+			<if test="description != null">description = #{description}, </if>
+			<if test="sort != null">sort = #{sort}, </if>
+			<if test="parentId != null">parent_id = #{parentId}, </if>
+			<if test="createBy != null">create_by = #{createBy}, </if>
+			<if test="createDate != null">create_date = #{createDate}, </if>
+			<if test="updateBy != null">update_by = #{updateBy}, </if>
+			<if test="updateDate != null">update_date = #{updateDate}, </if>
+			<if test="remarks != null">remarks = #{remarks}, </if>
+			<if test="delFlag != null">del_flag = #{delFlag}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from SYS_DICT where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from SYS_DICT where id in
+		<foreach item="id" collection="array" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="listType" resultType="com.galaxy.base.common.domain.DictDO">
+		select distinct type , description from SYS_DICT
+	</select>
+
+</mapper>

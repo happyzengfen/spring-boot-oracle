@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.galaxy.base.system.dao.UserDao">
+
+    <select id="get" resultType="com.galaxy.base.system.domain.UserDO">
+		select
+		user_id,username,name,password,dept_id,email,mobile,status,user_id_create,gmt_create,gmt_modified
+		from SYS_USER where user_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.galaxy.base.system.domain.UserDO">
+		select * from (
+		select 
+		a.user_id,a.username,a.name,a.password,a.dept_id,a.email,a.mobile,
+		a.status,a.user_id_create,a.gmt_create,a.gmt_modified,rownum as rn
+		from SYS_USER a
+		<where>
+			<if test="userId != null and userId != ''"> and a.user_id = #{userId} </if>
+			<if test="username != null and username != ''"> and a.username = #{username} </if>
+			<if test="name != null and name != ''"> and a.name = #{name} </if>
+			<if test="password != null and password != ''"> and a.password = #{password} </if>
+			<if test="deptId != null and deptId != ''"> and a.dept_id = #{deptId} </if>
+			<if test="email != null and email != ''"> and a.email = #{email} </if>
+			<if test="mobile != null and mobile != ''"> and a.mobile = #{mobile} </if>
+			<if test="status != null and status != ''"> and a.status = #{status} </if>
+			<if test="userIdCreate != null and userIdCreate != ''"> and a.user_id_create = #{userIdCreate} </if>
+			<if test="gmtCreate != null and gmtCreate != ''"> and a.gmt_create = #{gmtCreate} </if>
+			<if test="gmtModified != null and gmtModified != ''"> and a.gmt_modified = #{gmtModified} </if>
+			
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by user_id desc
+			</otherwise>
+		</choose>
+		) 
+		<if test="offset != null and limit != null">
+				where rn between #{offset}+1 and #{limit}*#{page}
+		</if>
+		
+	</select>
+
+	<select id="count" resultType="int">
+		select count(1)
+
+		from SYS_USER a
+		<where>
+			<if test="userId != null and userId != ''"> and a.user_id = #{userId} </if>
+			<if test="username != null and username != ''"> and a.username = #{username} </if>
+			<if test="name != null and name != ''"> and a.name = #{name} </if>
+			<if test="password != null and password != ''"> and a.password = #{password} </if>
+			<if test="deptId != null and deptId != ''"> and a.dept_id = #{deptId} </if>
+			<if test="email != null and email != ''"> and a.email = #{email} </if>
+			<if test="mobile != null and mobile != ''"> and a.mobile = #{mobile} </if>
+			<if test="status != null and status != ''"> and a.status = #{status} </if>
+			<if test="userIdCreate != null and userIdCreate != ''"> and a.user_id_create = #{userIdCreate} </if>
+			<if test="gmtCreate != null and gmtCreate != ''"> and a.gmt_create = #{gmtCreate} </if>
+			<if test="gmtModified != null and gmtModified != ''"> and a.gmt_modified = #{gmtModified} </if>
+		</where>
+
+	</select>
+
+	<insert id="save" parameterType="com.galaxy.base.system.domain.UserDO">
+	    
+		<selectKey resultType="Long" keyProperty="userId" order="BEFORE" >
+					select SEQ_SYS_USER.nextval from dual
+				</selectKey>
+
+				
+		insert into SYS_USER
+		(
+			<include refid="dictColumnKey" />
+		)
+		values
+		(
+			<include refid="dictColumnValue" />
+		)
+	</insert>
+
+	<update id="update" parameterType="com.galaxy.base.system.domain.UserDO">
+		update SYS_USER
+		<set>
+			<if test="username != null">username = #{username}, </if>
+			<if test="name != null">name = #{name}, </if>
+			<if test="password != null">password = #{password}, </if>
+			<if test="deptId != null">dept_id = #{deptId}, </if>
+			<if test="email != null">email = #{email}, </if>
+			<if test="mobile != null">mobile = #{mobile}, </if>
+			<if test="status != null">status = #{status}, </if>
+			<if test="userIdCreate != null">user_id_create = #{userIdCreate}, </if>
+			<if test="gmtCreate != null">gmt_create = #{gmtCreate}, </if>
+			<if test="gmtModified != null">gmt_modified = #{gmtModified}</if>
+		</set>
+		where user_id = #{userId}
+	</update>
+
+	<delete id="remove">
+		delete from SYS_USER where user_id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from SYS_USER where user_id in
+		<foreach item="userId" collection="array" open="(" separator=","
+			close=")">
+			#{userId}
+		</foreach>
+	</delete>
+
+	<select id="listAllDept" resultType="Long">
+		select DISTINCT dept_id from SYS_USER
+	</select>
+	
+	<sql id = "dictColumnKey">
+		<trim suffix="" suffixOverrides=",">
+			
+								<if test="gmtModified != null ">GMT_MODIFIED,</if>
+											<if test="gmtCreate != null ">GMT_CREATE,</if>
+											<if test="userIdCreate != null ">USER_ID_CREATE,</if>
+											<if test="status != null ">STATUS,</if>
+											<if test="mobile != null and mobile != '' ">MOBILE,</if>
+											<if test="email != null and email != '' ">EMAIL,</if>
+											<if test="deptId != null ">DEPT_ID,</if>
+											<if test="password != null and password != '' ">PASSWORD,</if>
+											<if test="name != null and name != '' ">NAME,</if>
+											<if test="username != null and username != '' ">USERNAME,</if>
+											<if test="userId != null ">USER_ID,</if>
+							</trim>
+	</sql>
+	
+	<sql id = "dictColumnValue">
+		<trim suffix="" suffixOverrides=",">
+									<if test="gmtModified != null ">#{gmtModified},</if>
+												<if test="gmtCreate != null ">#{gmtCreate},</if>
+												<if test="userIdCreate != null ">#{userIdCreate},</if>
+												<if test="status != null ">#{status},</if>
+												<if test="mobile != null and mobile != '' ">#{mobile},</if>
+												<if test="email != null and email != '' ">#{email},</if>
+												<if test="deptId != null ">#{deptId},</if>
+												<if test="password != null and password != '' ">#{password},</if>
+												<if test="name != null and name != '' ">#{name},</if>
+												<if test="username != null and username != '' ">#{username},</if>
+												<if test="userId != null ">#{userId},</if>
+							</trim>
+	</sql>
+	
+</mapper>

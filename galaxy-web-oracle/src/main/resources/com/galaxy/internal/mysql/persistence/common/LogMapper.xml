@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.galaxy.base.common.dao.LogDao">
+
+    <select id="get" resultType="com.galaxy.base.common.domain.LogDO">
+		select log_id,user_id,username,operation,time,method,params,ip,gmt_create from SYS_LOG where id = #{value}
+	</select>
+
+    <select id="list" resultType="com.galaxy.base.common.domain.LogDO">
+        select * from (
+        select rownum as rn,
+
+        pl.id,pl.user_id,pl.username,pl.operation,pl.time,pl.method,pl.params,pl.ip,pl.gmt_create
+        from (select * from SYS_LOG
+
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by
+                gmt_create
+                desc
+            </otherwise>
+        </choose>
+        )
+        pl
+        <where>
+            <if test="id != null and id != ''">and pl.id = #{id}</if>
+            <if test="userId != null and userId != ''">and pl.user_id = #{userId}</if>
+            <if test="username != null and username != ''">and pl.username = #{username}</if>
+            <if test="operation != null and operation != ''">and pl.operation = #{operation}</if>
+            <if test="time != null and time != ''">and pl.time = #{time}</if>
+            <if test="method != null and method != ''">and pl.method = #{method}</if>
+            <if test="params != null and params != ''">and pl.params = #{params}</if>
+            <if test="ip != null and ip != ''">and pl.ip = #{ip}</if>
+            <if test="gmtCreate != null and gmtCreate != ''">and pl.gmt_create = #{gmtCreate}</if>
+        </where>
+        )
+        <if test="offset != null and limit != null">
+            where rn between #{offset}+1 and #{limit}*#{page}
+        </if>
+    </select>
+
+    <select id="count" resultType="int">
+        select count(1)
+        from SYS_LOG pl
+        <where>
+            <if test="id != null and id != ''">and pl.id = #{id}</if>
+            <if test="userId != null and userId != ''">and pl.user_id = #{userId}</if>
+            <if test="username != null and username != ''">and pl.username = #{username}</if>
+            <if test="operation != null and operation != ''">and pl.operation = #{operation}</if>
+            <if test="time != null and time != ''">and pl.time = #{time}</if>
+            <if test="method != null and method != ''">and pl.method = #{method}</if>
+            <if test="params != null and params != ''">and pl.params = #{params}</if>
+            <if test="ip != null and ip != ''">and pl.ip = #{ip}</if>
+            <if test="gmtCreate != null and gmtCreate != ''">and pl.gmt_create = #{gmtCreate}</if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.galaxy.base.common.domain.LogDO">
+        <selectKey order="AFTER" resultType="long" keyProperty="id">
+            select seq_SYS_LOG.currval from dual
+        </selectKey>
+        insert into SYS_LOG
+        ( id,
+        user_id,
+        username,
+        operation,
+        time,
+        method,
+        params,
+        ip,
+        gmt_create
+        )
+        values
+        ( seq_SYS_LOG.nextval,
+        #{userId},
+        #{username},
+        #{operation},
+        #{time},
+        #{method},
+        #{params},
+        #{ip},
+        #{gmtCreate}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.galaxy.base.common.domain.LogDO">
+        update SYS_LOG
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="username != null">username = #{username},</if>
+            <if test="operation != null">operation = #{operation},</if>
+            <if test="time != null">time = #{time},</if>
+            <if test="method != null">method = #{method},</if>
+            <if test="params != null">params = #{params},</if>
+            <if test="ip != null">ip = #{ip},</if>
+            <if test="gmtCreate != null">gmt_create = #{gmtCreate}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="remove">
+		delete from SYS_LOG where id = #{value}
+	</delete>
+
+    <delete id="batchRemove">
+        delete from SYS_LOG where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

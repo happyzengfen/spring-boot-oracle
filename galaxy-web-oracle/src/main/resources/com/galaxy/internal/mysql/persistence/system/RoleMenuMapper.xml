@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.galaxy.base.system.dao.RoleMenuDao">
+
+	<select id="get" resultType="com.galaxy.base.system.domain.RoleMenuDO">
+		select id,role_id,menu_id from
+		SYS_ROLE_MENU  where id = #{value}
+	</select>
+
+	<select id="list" resultType="com.galaxy.base.system.domain.RoleMenuDO">
+		select * from (
+			select  t.id,t.role_id,t.menu_id,rownum as rn from SYS_ROLE_MENU t
+		<where>
+			<if test="id != null and id != ''"> and t.id = #{id} </if>
+			<if test="roleId != null and roleId != ''"> and t.role_id = #{roleId} </if>
+			<if test="menuId != null and menuId != ''"> and t.menu_id = #{menuId} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		)
+		<if test="offset != null and limit != null">
+			where rn between #{offset}+1 and #{limit}*#{page}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(1) from
+			 from SYS_ROLE_MENU t
+		<where>
+			<if test="id != null and id != ''"> and t.id = #{id} </if>
+			<if test="roleId != null and roleId != ''"> and t.role_id = #{roleId} </if>
+			<if test="menuId != null and menuId != ''"> and t.menu_id = #{menuId} </if>
+		</where>
+
+
+	</select>
+
+	<insert id="save" parameterType="com.galaxy.base.system.domain.RoleMenuDO" >
+		<selectKey order="AFTER" resultType="long" keyProperty="id">
+			select seq_SYS_role_menu.currval from dual
+		</selectKey>
+		insert into SYS_ROLE_MENU
+		(
+		id,
+		role_id,
+		menu_id
+		)
+		values
+		(
+		seq_SYS_role_menu.nextval,
+		#{roleId},
+		#{menuId}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.galaxy.base.system.domain.RoleMenuDO">
+		update SYS_ROLE_MENU
+		<set>
+			<if test="roleId != null"> role_id = #{roleId}, </if>
+			<if test="menuId != null"> menu_id = #{menuId}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="remove">
+		delete from SYS_ROLE_MENU where id = #{value}
+	</delete>
+
+	<delete id="batchRemove">
+		delete from SYS_ROLE_MENU where id in
+		<foreach item="id" collection="array" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="listMenuIdByRoleId" resultType="long">
+		select menu_id from SYS_ROLE_MENU
+		<where>role_id = #{roleId}</where>
+	</select>
+
+	<delete id="removeByRoleId">
+		DELETE FROM SYS_ROLE_MENU WHERE role_id=#{roleId}
+	</delete>
+
+	<insert id="batchSave">
+		<foreach close="end;" open="begin" item="item" collection="list">
+			INSERT INTO SYS_ROLE_MENU(id,role_id, menu_id) values	
+			(seq_SYS_role_menu.nextval,#{item.roleId},#{item.menuId});
+		</foreach>
+	</insert>
+	
+</mapper>

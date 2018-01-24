@@ -1,0 +1,82 @@
+/**
+ *
+ */
+
+ul.map-list{
+	list-style: none;
+	li{
+		display: flex;
+		flex-flow: row nowrap;
+		align-items: center;
+		border-bottom: 1px solid #eee;
+		padding: .5rem 0 .5rem 1.5rem;
+		.map-key{
+			width: 30%;
+		}
+		&:nth-child(even) {
+			background: #f7f7f7;
+		}
+	}
+}
+
+ul.config-list{
+	list-style: none;
+	li{
+		display: flex;
+		flex-flow: row nowrap;
+		align-items: center;
+		border-bottom: 1px solid #eee;
+		.prop{
+			flex: 3;
+		}
+		.value{
+			flex: 3;
+		}
+		.remark{
+			flex: 3;
+		}
+		.op{
+			flex: 1;
+			text-align: right;
+		}
+	}
+}
+
+img.user-icon{
+	@size: 75px;
+	@border: 2px;
+	@radius: 5px;
+	@padding: 5px;
+	background: #fff;
+	width: @size; height: @size;
+	border: @border solid #999;
+	border-radius: @radius;
+	padding: @padding;
+	&.mini{
+		@size: 50px;
+		@border: 1px;
+		@radius: 5px;
+		@padding: 2px;
+		width: @size; height: @size;
+		border: @border solid #999;
+		border-radius: @radius;
+		padding: @padding;
+	}
+	&.big{
+		@size: 125px;
+		@border: 2px;
+		@radius: 5px;
+		@padding: 5px;
+		width: @size; height: @size;
+		border: @border solid #eee;
+		border-radius: @radius;
+		padding: @padding;
+	}
+}
+
+img.table-img{
+	@size: 75px;
+	@padding: 5px;
+	width: @size; height: @size;
+	padding: @padding;
+}
